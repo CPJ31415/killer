@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huajuan.killer.mapper.PromoDOMapper">
+  <resultMap id="BaseResultMap" type="com.huajuan.killer.domain.PromoDO">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="promo_name" jdbcType="VARCHAR" property="promoName" />
+    <result column="start_date" jdbcType="TIMESTAMP" property="startDate" />
+    <result column="item_id" jdbcType="BIGINT" property="itemId" />
+    <result column="promo_item_price" jdbcType="DOUBLE" property="promoItemPrice" />
+    <result column="end_date" jdbcType="TIMESTAMP" property="endDate" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, promo_name, start_date, item_id, promo_item_price, end_date
+  </sql>
+   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from promo
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectByItemId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from promo
+    where item_id = #{itemId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from promo
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.huajuan.killer.domain.PromoDO">
+    insert into promo (id, promo_name, start_date, 
+      item_id, promo_item_price, end_date
+      )
+    values (#{id,jdbcType=BIGINT}, #{promoName,jdbcType=VARCHAR}, #{startDate,jdbcType=TIMESTAMP}, 
+      #{itemId,jdbcType=BIGINT}, #{promoItemPrice,jdbcType=DOUBLE}, #{endDate,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.huajuan.killer.domain.PromoDO">
+    insert into promo
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="promoName != null">
+        promo_name,
+      </if>
+      <if test="startDate != null">
+        start_date,
+      </if>
+      <if test="itemId != null">
+        item_id,
+      </if>
+      <if test="promoItemPrice != null">
+        promo_item_price,
+      </if>
+      <if test="endDate != null">
+        end_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="promoName != null">
+        #{promoName,jdbcType=VARCHAR},
+      </if>
+      <if test="startDate != null">
+        #{startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="itemId != null">
+        #{itemId,jdbcType=BIGINT},
+      </if>
+      <if test="promoItemPrice != null">
+        #{promoItemPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="endDate != null">
+        #{endDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.huajuan.killer.domain.PromoDO">
+    update promo
+    <set>
+      <if test="promoName != null">
+        promo_name = #{promoName,jdbcType=VARCHAR},
+      </if>
+      <if test="startDate != null">
+        start_date = #{startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="itemId != null">
+        item_id = #{itemId,jdbcType=BIGINT},
+      </if>
+      <if test="promoItemPrice != null">
+        promo_item_price = #{promoItemPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="endDate != null">
+        end_date = #{endDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.huajuan.killer.domain.PromoDO">
+    update promo
+    set promo_name = #{promoName,jdbcType=VARCHAR},
+      start_date = #{startDate,jdbcType=TIMESTAMP},
+      item_id = #{itemId,jdbcType=BIGINT},
+      promo_item_price = #{promoItemPrice,jdbcType=DOUBLE},
+      end_date = #{endDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
