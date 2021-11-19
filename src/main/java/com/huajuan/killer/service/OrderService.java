@@ -77,13 +77,13 @@ public class OrderService {
         orderModel.setPromoId(promoId);
         orderModel.setOrderPrice(orderModel.getItemPrice().multiply(new BigDecimal(amount)));
 
-        //生成流水号，并将订单存入数据库
+        //生成流水号，并将订单存入数据库。注意生成流水号时也有行锁，待优化
         orderModel.setId(generateOrderNo());
         OrderDO orderDO = this.convertFromOrderModel(orderModel);
         orderDOMapper.insertSelective(orderDO);
 
-        //加上商品销量
-        itemService.increaseSales(itemId, amount);
+//        //加上商品销量，这里也应该异步操作
+//        itemService.increaseSales(itemId, amount);
 
         //设置库存流水状态为成功
         StockLogDO stockLogDO = stockLogDOMapper.selectByPrimaryKey(stockLogId);

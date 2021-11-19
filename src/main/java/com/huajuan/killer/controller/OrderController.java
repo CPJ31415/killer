@@ -47,10 +47,6 @@ public class OrderController extends BaseController{
     @Autowired
     private MqProduct mqProduct;
 
-    @Autowired
-    private ItemStockDOMapper itemStockDOMapper;
-
-
     @PostConstruct
     public void init(){
         executorService = Executors.newFixedThreadPool(20);
@@ -88,7 +84,7 @@ public class OrderController extends BaseController{
     @ResponseBody
     public CommonReturnType createOrder(@RequestParam(name = "itemId") Long itemId,
                                         @RequestParam(name = "amount") Integer amount,
-                                        @RequestParam(name="promoId",required = false)Long promoId,
+                                        @RequestParam(name="promoId")Long promoId,
                                         @RequestParam(name="promoToken",required = false)String promoToken)
                                         throws BusinessException {
 

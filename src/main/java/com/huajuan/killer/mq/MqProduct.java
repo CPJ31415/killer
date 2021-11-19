@@ -40,6 +40,8 @@ public class MqProduct {
     @Autowired
     private StockLogDOMapper stockLogDOMapper;
 
+    //事务mq，如果mq异常，可以回滚
+    //用mysql，具有持久性，存一个日志，如果redis有更新即将日志更改为已完成，否则回滚，
     @PostConstruct
     public void init() throws MQClientException {
         //做mq producer的初始化
