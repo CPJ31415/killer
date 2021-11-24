@@ -49,9 +49,8 @@ public class UserController extends BaseController{
         //用户登录服务，校验用户登录合法性
         UserModel userModel = userService.validateLogin(telephone, this.EncodeByMd5(password));
 
-        //将登录凭证加入到用户登录成功的session内
 
-        //生成登陆凭证token, UUID
+        //生成登陆凭证token, UUID, token + redis 存储用户信息
         String uuidToken = UUID.randomUUID().toString();
         uuidToken = uuidToken.replace("-","");
 

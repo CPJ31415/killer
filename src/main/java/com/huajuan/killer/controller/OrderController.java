@@ -51,10 +51,12 @@ public class OrderController extends BaseController{
     public void init(){
         executorService = Executors.newFixedThreadPool(20);
 
-        orderCreateRateLimiter = RateLimiter.create(300.0);
+        //令牌桶， 平滑输出，允许突发流量
+        orderCreateRateLimiter = RateLimiter.create(100.0);
     }
 
     //生成秒杀令牌
+    //要先获取购物资格才能进行购物！
     @RequestMapping(value = "/generatetoken",method = {RequestMethod.POST},consumes={CONTENT_TYPE_FORMED})
     @ResponseBody
     public CommonReturnType generatetoken(@RequestParam(name="itemId")Long itemId,
@@ -88,10 +90,11 @@ public class OrderController extends BaseController{
                                         @RequestParam(name="promoToken",required = false)String promoToken)
                                         throws BusinessException {
 
-        if(orderCreateRateLimiter.acquire() < 0){
+        //没有令牌，抢购失败
+        if(!orderCreateRateLimiter.tryAcquire()){
             throw new BusinessException(EmBusinessError.RATELIMIT);
         }
-        //
+
 
         String token = httpServletRequest.getParameterMap().get("token")[0];
         if (StringUtils.isEmpty(token)) {

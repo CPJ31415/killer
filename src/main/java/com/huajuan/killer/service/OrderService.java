@@ -32,15 +32,6 @@ public class OrderService {
     private ItemService itemService;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
-    private SequenceDOMapper sequenceDOMapper;
-
-    @Autowired
-    private OrderDOMapper orderDOMapper;
-
-    @Autowired
     private StockLogDOMapper stockLogDOMapper;
 
     @Transactional
@@ -77,11 +68,6 @@ public class OrderService {
         orderModel.setPromoId(promoId);
         orderModel.setOrderPrice(orderModel.getItemPrice().multiply(new BigDecimal(amount)));
 
-        //生成流水号，并将订单存入数据库。注意生成流水号时也有行锁，待优化
-        orderModel.setId(generateOrderNo());
-        OrderDO orderDO = this.convertFromOrderModel(orderModel);
-        orderDOMapper.insertSelective(orderDO);
-
 //        //加上商品销量，这里也应该异步操作
 //        itemService.increaseSales(itemId, amount);
 
@@ -96,42 +82,4 @@ public class OrderService {
         return orderModel;
     }
 
-    private OrderDO convertFromOrderModel(OrderModel orderModel) {
-        if (orderModel == null) {
-            return null;
-        }
-        OrderDO orderDO = new OrderDO();
-        BeanUtils.copyProperties(orderModel, orderDO);
-        orderDO.setItemPrice(orderModel.getItemPrice().doubleValue());
-        orderDO.setOrderPrice(orderModel.getOrderPrice().doubleValue());
-        return orderDO;
-    }
-
-    //这里考虑createOrder的事务回滚，保证OrderNo不为之前的；
-    // “REQUIRES_NEW” 无论代码是否在事务中，都会重新开启新的事务并提交新事务
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public String generateOrderNo() {
-        StringBuilder sb = new StringBuilder();
-        //设置订单号有16位 前8位为时间信息，年月日，中间6位为自增序列，
-        // 最后2位为分库分表位（如用户id % 100后落到0-99的库表中，可以缓解数据库压力；这里暂时写死）
-        LocalDateTime now = LocalDateTime.now();
-        String nowDate = now.format(DateTimeFormatter.ISO_DATE).replace("-", "");
-        sb.append(nowDate);
-
-        //获取当前sequence
-        int sequence = 0;
-        SequenceDO sequenceDO = sequenceDOMapper.getSequenceByName("order_info");
-        sequence = sequenceDO.getCurrentValue();
-        sequenceDO.setCurrentValue(sequenceDO.getCurrentValue() + sequenceDO.getStep());
-        sequenceDOMapper.updateByPrimaryKey(sequenceDO);
-        String sequenceStr = String.valueOf(sequence);
-        for (int i = 0; i < 6 - sequenceStr.length(); i ++) {
-            sb.append(0);
-        }
-        sb.append(sequenceStr);
-
-        sb.append("00"); //分库分表位
-
-        return sb.toString();
-    }
 }
