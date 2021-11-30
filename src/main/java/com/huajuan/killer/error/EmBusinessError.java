@@ -19,7 +19,7 @@ public enum EmBusinessError implements CommonError{
     RATELIMIT(30003,"活动太火爆,请稍后再试"),
     ;
 
-    private EmBusinessError(int errCode, String errMsg) {
+    EmBusinessError(int errCode, String errMsg) {
         this.errMsg = errMsg;
         this.errCode = errCode;
     }

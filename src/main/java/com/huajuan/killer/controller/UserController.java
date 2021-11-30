@@ -100,7 +100,6 @@ public class UserController extends BaseController{
 
     //用户获取otp短信接口
     @RequestMapping(value = "/getotp",method = {RequestMethod.POST},consumes={CONTENT_TYPE_FORMED})
-    //@GetMapping ("/getotp")
     @ResponseBody
     public CommonReturnType getOtp(@RequestParam(name = "telephone") String telephone) {
         //生成otp验证

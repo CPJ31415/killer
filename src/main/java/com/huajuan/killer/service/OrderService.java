@@ -34,6 +34,12 @@ public class OrderService {
     @Autowired
     private StockLogDOMapper stockLogDOMapper;
 
+    @Autowired
+    private SequenceDOMapper sequenceDOMapper;
+
+    @Autowired
+    private OrderDOMapper orderDOMapper;
+
     @Transactional
     public OrderModel createOrder(Long userId, Long itemId, Integer amount, Long promoId, String stockLogId) throws BusinessException {
 
@@ -59,16 +65,23 @@ public class OrderService {
         orderModel.setUserId(userId);
         orderModel.setItemId(itemId);
         orderModel.setAmount(amount);
-        if (promoId != null) {
+        if(promoId != null){
             orderModel.setItemPrice(itemModel.getPromoModel().getPromoItemPrice());
-        } else {
+        }else{
             orderModel.setItemPrice(itemModel.getPrice());
         }
 
         orderModel.setPromoId(promoId);
         orderModel.setOrderPrice(orderModel.getItemPrice().multiply(new BigDecimal(amount)));
 
-//        //加上商品销量，这里也应该异步操作
+
+//        //生成流水号和加上商品销量，这两步也要mq异步操作更新
+//        orderModel.setId(generateOrderNo());
+//        OrderDO orderDO = this.convertFromOrderModel(orderModel);
+//        orderDOMapper.insertSelective(orderDO);
+
+
+//        //加上商品销量
 //        itemService.increaseSales(itemId, amount);
 
         //设置库存流水状态为成功
@@ -81,5 +94,42 @@ public class OrderService {
         //返回前端
         return orderModel;
     }
+
+    private OrderDO convertFromOrderModel(OrderModel orderModel) {
+        if (orderModel == null) {
+            return null;
+        }
+        OrderDO orderDO = new OrderDO();
+        BeanUtils.copyProperties(orderModel, orderDO);
+        orderDO.setItemPrice(orderModel.getItemPrice().doubleValue());
+        orderDO.setOrderPrice(orderModel.getOrderPrice().doubleValue());
+        return orderDO;
+    }
+
+//    @Transactional(propagation = Propagation.REQUIRES_NEW)
+//    public String generateOrderNo() {
+//        StringBuilder sb = new StringBuilder();
+//        //设置订单号有16位 前8位为时间信息，年月日，中间6位为自增序列，
+//        // 最后2位为分库分表位（如用户id % 100后落到0-99的库表中，可以缓解数据库压力；这里暂时写死）
+//        LocalDateTime now = LocalDateTime.now();
+//        String nowDate = now.format(DateTimeFormatter.ISO_DATE).replace("-", "");
+//        sb.append(nowDate);
+//
+//        //获取当前sequence
+//        int sequence = 0;
+//        SequenceDO sequenceDO = sequenceDOMapper.getSequenceByName("order_info");
+//        sequence = sequenceDO.getCurrentValue();
+//        sequenceDO.setCurrentValue(sequenceDO.getCurrentValue() + sequenceDO.getStep());
+//        sequenceDOMapper.updateByPrimaryKey(sequenceDO);
+//        String sequenceStr = String.valueOf(sequence);
+//        for (int i = 0; i < 6 - sequenceStr.length(); i ++) {
+//            sb.append(0);
+//        }
+//        sb.append(sequenceStr);
+//
+//        sb.append("00"); //分库分表位
+//
+//        return sb.toString();
+//    }
 
 }
